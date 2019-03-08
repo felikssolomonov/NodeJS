@@ -6,12 +6,15 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const expressHbs = require("express-handlebars");
+const hbs = require("hbs");
+const fs = require("fs");
+
 
 const app = express();
-
 const urlencodedParser = bodyParser.urlencoded({extended: false});
-
 const jsonParser = express.json();
+const jsonParser2 = bodyParser.json();
 
 app.get("/register", urlencodedParser, function(request, response){
   response.sendFile(__dirname+"/register.html");
@@ -39,15 +42,57 @@ app.post("/register", urlencodedParser, function(request, response){
     +"<br>userAge = "+request.body.userAge);
 });
 
+function getTime(){
+    var myDate = new Date();
+    var hour = myDate.getHours();
+    var minute = myDate.getMinutes();
+    var second = myDate.getSeconds();
+    if (minute < 10) {
+        minute = "0" + minute;
+    }
+    if (second < 10) {
+        second = "0" + second;
+    }
+    return "Текущее время: " + hour + ":" + minute + ":" + second;
+}
+
+function getArr(array){
+
+    var result="";
+    for(var i=0; i<array.length; i++){
+        result +="<li>" + array[i] + "</li>";
+    }
+    return new hbs.SafeString("<ul>" + result + "</ul>");
+}
+
+app.engine("hbs", expressHbs(
+    {
+        layoutsDir: "views/layouts",
+        defaultLayout: "layout",
+        extname: "hbs",
+        helpers: {
+              time: getTime(),
+              fruits: getArr(["apple", "lemon", "banana", "grape"]),
+              emails: getArr(["gavgav@mycorp.com","gavgav@mycorp.com"]),
+          }
+    }
+));
+
 app.set("view engine", "hbs");
 
+
+hbs.registerPartials(__dirname + "/views/partials");
+
 app.use("/contact", function(request, response){
-    response.render("contact.hbs", {
-        title: "Мои контакты",
-        emailsVisible: true,
-        emails: ["gavgav@mycorp.com","gavgav@mycorp.com"],
-        phone: "+1234567890"
-    });
+    response.render("contact", {
+      title: "Мои контакты",
+      emailsVisible: true,
+      phone: "+1234567890",
+    })
+});
+
+app.use("/", function(request, response){
+    response.render("home.hbs");
 });
 
 const productRouter = express.Router();
@@ -74,8 +119,8 @@ app.use("/about", function (request, response) {
   response.send("О сайте");
 });
 
-// app.use("/register", function(request, response){
-//   response.sendFile(__dirname+"/register.html");
-// });
+app.use("/register", function(request, response){
+  response.sendFile(__dirname+"/register.html");
+});
 
 app.listen(3000);
