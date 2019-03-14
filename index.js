@@ -4,17 +4,110 @@
 //     response.render("contact.hbs");
 // });
 
+
+////////////////////////////////////////////////////////////////////////////////
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const expressHbs = require("express-handlebars");
 const hbs = require("hbs");
 const fs = require("fs");
+const MongoClient = require("mongodb").MongoClient;
 
 
 const app = express();
 const urlencodedParser = bodyParser.urlencoded({extended: false});
 const jsonParser = express.json();
 const jsonParser2 = bodyParser.json();
+const url = "mongodb://localhost:27017/";
+const mongoClient = new MongoClient(url, { useNewUrlParser: true });
+
+let users = [{name: "Vasya", age: 48}, {name: "Alex", age: 18}, {name: "John", age: 37}];
+
+mongoClient.connect(function(err, client){
+  const db = client.db("userdb");
+  const collection = db.collection("users");
+  let user = {name: "Daniel", age: 28};
+  // collection.insertOne(user, function(err, result){
+  //   console.log("insert one:");
+  //   if(err){
+  //     return console.log(err);
+  //   }
+  //   console.log(result.ops);
+  //   client.close();
+  // });
+  // collection.insertMany(users, function(err, result){
+  //   console.log("insert many:");
+  //   console.log(result);
+  //   client.close();
+  // });
+  if(err){
+    return console.log(err);
+  }
+  // collection.find().toArray(function(err, result){
+  //   console.log(result);
+  //   client.close();
+  // });
+  // collection.findOneAndUpdate(
+  //   {name: "Mister John"},
+  //   {$set: {age: 68}},
+  //   {//если хотим на него нового взглянуть, если на старого то это вообще убрать
+  //     returnOriginal: false
+  //   },
+  //   function(err, result){
+  //     console.log(result);
+  //     client.close();
+  //   }
+  // );
+  // collection.updateMany(
+  //   {name: "Vasya"},
+  //   {$set: {age: 111}},
+  //   function(err, result){
+  //     console.log(result);
+  //     client.close();
+  //   }
+  // );
+  // collection.updateOne(
+  //   {name: "Vasya"},
+  //   {$set: {name: "Vasily Ivanovich"}},
+  //   function(err, result){
+  //     console.log(result);
+  //     client.close();
+  //   }
+  // );
+  // collection.find({age: 28}).toArray(function(err, result){
+  //   console.log(result);
+  //   client.close();
+  // });
+  // db.collection("users").findOne(function(err, result){
+  //   console.log(result);
+  //   client.close();
+  // });
+  // db.collection("users").findOne({name: "Vasya"},function(err, result){
+  //   console.log(result);
+  //   client.close();
+  // });
+  // db.collection("users").deleteMany({name: "Vasya"},function(err, result){
+  //   console.log(result);
+  //   client.close();
+  // });
+  // db.collection("users").deleteOne({name: "Alex"},function(err, result){
+  //   console.log(result);
+  //   client.close();
+  // });
+  // db.collection("users").findOneAndDelete({name: "Alex"},function(err, result){
+  //   console.log(result);
+  //   client.close();
+  // });
+  // db.collection("users").drop(function(err, result){
+  //   console.log(result);
+  //   client.close();
+  // });
+  collection.find().toArray(function(err, result){
+    console.log(result);
+    client.close();
+  });
+});
 
 app.get("/register", urlencodedParser, function(request, response){
   response.sendFile(__dirname+"/register.html");
@@ -71,10 +164,10 @@ app.engine("hbs", expressHbs(
         defaultLayout: "layout",
         extname: "hbs",
         helpers: {
-              time: getTime(),
-              fruits: getArr(["apple", "lemon", "banana", "grape"]),
-              emails: getArr(["gavgav@mycorp.com","gavgav@mycorp.com"]),
-          }
+            time: getTime(),
+            fruits: getArr(["apple", "lemon", "banana", "grape"]),
+            emails: getArr(["gavgav@mycorp.com","gavgav@mycorp.com"]),
+        }
     }
 ));
 
@@ -88,7 +181,7 @@ app.use("/contact", function(request, response){
       title: "Мои контакты",
       emailsVisible: true,
       phone: "+1234567890",
-    })
+    });
 });
 
 app.use("/", function(request, response){
@@ -124,3 +217,5 @@ app.use("/register", function(request, response){
 });
 
 app.listen(3000);
+
+module.exports.app = app;

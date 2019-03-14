@@ -1,7 +1,24 @@
-const express = require("express");
-const app = express();
-
-app.get("/", function(request, response){
-    response.end("Hello from Express!");
-});
-app.listen(3000);
+//
+// const express = require("express");
+// var app = express();
+//
+// app.get("/", function (request, response){
+//
+//     response.send("Hello Test");
+// });
+//
+// app.get("/error", function (request, response){
+//
+//     response.status(404).send("NotFound");
+// });
+//
+// app.get("/user", function (request, response){
+//
+//     response.send({name:"Tom", age: 22});
+// });
+//
+// app.listen(3000);
+//
+// console.log("007");
+//
+// module.exports.app = app;
